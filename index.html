@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeeDoh & Squishy World RPG</title>
+    <style>
+        :root {
+            --bg-color: #1a1c23;
+            --panel-bg: rgba(30, 34, 45, 0.85);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --primary: #ff6b81;
+            --secondary: #4ea8de;
+            --accent: #ffd166;
+            --success: #06d6a0;
+            --text-main: #f8f9fa;
+            --text-muted: #a0aec0;
+            --common: #a0aec0;
+            --rare: #4ea8de;
+            --epic: #9d4edd;
+            --legendary: #ffd166;
+            --mythic: #ff4757;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(255, 107, 129, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(78, 168, 222, 0.08) 0%, transparent 40%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(20, 22, 28, 0.95);
+            border-bottom: 1px solid var(--panel-border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 15px rgba(255, 107, 129, 0.4);
+        }
+
+        .logo-title {
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ff6b81, #ffd166);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .resources-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .res-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--panel-border);
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .res-gold { color: var(--accent); }
+        .res-gems { color: var(--secondary); }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 280px 1fr 340px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (max-width: 1200px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 10px;
+        }
+
+        .squishy-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 250px;
+        }
+
+        .squishy-avatar-container {
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .squishy-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ff9ff3, #feca57);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset -5px -5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), width 0.3s, height 0.3s;
+            position: relative;
+        }
+
+        .squishy-avatar:active {
+            transform: scale(0.85, 0.7);
+        }
+
+        .stat-bar-group {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .view-switcher {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .view-content {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .view-content.active {
+            display: flex;
+        }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            flex: 1;
+        }
+
+        .region-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .region-banner {
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .region-title { font-weight: 700; font-size: 1.05rem; }
+        .region-desc { font-size: 0.8rem; color: var(--text-muted); flex: 1; }
+
+        .arena-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .arena-stage {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            min-height: 200px;
+        }
+
+        .fighter-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 140px;
+        }
+
+        .fighter-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .battle-log {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 12px;
+            height: 100px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+
+        .log-entry.player { color: var(--secondary); }
+        .log-entry.enemy { color: var(--primary); }
+        .log-entry.win { color: var(--accent); font-weight: bold; }
+
+        .battle-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .shop-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .shop-info { display: flex; align-items: center; gap: 12px; }
+        .shop-icon { font-size: 2rem; }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .inv-item {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .inv-item.equipped {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 10px rgba(255, 209, 102, 0.3);
+        }
+
+        .badge-rarity {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-secondary { background: var(--secondary); }
+        .btn-accent { background: var(--accent); color: #111; }
+        .btn-outline { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); }
+
+        .rarity-common { color: var(--common); }
+        .rarity-rare { color: var(--rare); }
+        .rarity-epic { color: var(--epic); }
+        .rarity-legendary { color: var(--legendary); }
+        .rarity-mythic { color: var(--mythic); }
+
+        .bg-rarity-common { background-color: var(--common); }
+        .bg-rarity-rare { background-color: var(--rare); }
+        .bg-rarity-epic { background-color: var(--epic); }
+        .bg-rarity-legendary { background-color: var(--legendary); }
+        .bg-rarity-mythic { background-color: var(--mythic); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .chest-modal {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .unboxing-icon { font-size: 5rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon">🔮</div>
+            <div class="logo-title">NeeDoh & Squishy RPG</div>
+        </div>
+        <div class="resources-group">
+            <div class="res-badge">
+                <span>🪙</span>
+                <span class="res-gold" id="gold-display">0</span>
+            </div>
+            <div class="res-badge">
+                <span>💎</span>
+                <span class="res-gems" id="gems-display">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- LEFT PANEL -->
+        <section class="panel">
+            <div class="panel-header">
+                <span>הסקווישי הפעיל</span>
+                <span id="active-rarity-badge" class="rarity-common" style="font-size: 0.8rem; font-weight:bold;">Common</span>
+            </div>
+
+            <div class="squishy-stage">
+                <div class="squishy-avatar-container" onclick="squishActive()">
+                    <div class="squishy-avatar" id="squishy-visual">🍩</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 15px;">
+                <h2 id="squishy-name-display" style="margin: 0 0 4px 0;">דונאט רך</h2>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    שלב גדילה: <strong id="squishy-stage-label">רמה 1</strong>
+                </div>
+            </div>
+
+            <div class="stat-bar-group">
+                <div class="stat-label">
+                    <span>רמת ניסיון (XP)</span>
+                    <span id="xp-text">0 / 50</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="xp-bar-fill"></div>
+                </div>
+
+                <div class="stat-label">
+                    <span>כוח התקפה (ATK)</span>
+                    <span id="atk-text" style="color: var(--primary); font-weight:bold;">12</span>
+                </div>
+                <div class="stat-label">
+                    <span>נקודות חיים (HP)</span>
+                    <span id="hp-text" style="color: var(--success); font-weight:bold;">60</span>
+                </div>
+            </div>
+
+            <button class="btn btn-outline" style="margin-top: 15px; width: 100%;" onclick="squishActive()">
+                👆 מעך בשביל XP!
+            </button>
+        </section>
+
+        <!-- CENTER PANEL -->
+        <section class="panel">
+            <div class="view-switcher">
+                <div class="nav-tab active" id="tab-map" onclick="switchView('map')">🗺️ מפת מחוזות</div>
+                <div class="nav-tab" id="tab-battle" onclick="switchView('battle')">⚔️ זירת קרב</div>
+            </div>
+
+            <div class="view-content active" id="view-map">
+                <div class="panel-header">
+                    <span>בחר אזור לקרב</span>
+                </div>
+                <div class="map-grid" id="map-grid-container"></div>
+            </div>
+
+            <div class="view-content" id="view-battle">
+                <div class="arena-container">
+                    <div class="arena-stage">
+                        <div class="fighter-box">
+                            <div class="fighter-avatar" id="battle-player-icon" style="background: rgba(78, 168, 222, 0.2);">🍩</div>
+                            <div class="fighter-name" id="battle-player-name">הסקווישי שלך</div>
+                            <div class="stat-bar-group" style="width: 100%;">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="battle-player-hp-bar" style="background: var(--success); width: 100%;"></div>
+                                </div>
+                                <div style="font-size:0.75rem; text-align:center;" id="battle-player-hp-val">60/60</div>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 2rem; font-weight: 900; color: var(--primary);">VS</div>
+
+                        <div class="fighter-box">
+                            <div class="fighter-avatar" id="battle-enemy-icon" style="background: rgba(255, 107, 129, 0.2);">👾</div>
+                            <div class="fighter-name" id="battle-enemy-name">אויב פראי</div>
+                            <div class="stat-bar-group" style="width: 100%;">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="battle-enemy-hp-bar" style="background: var(--primary); width: 100%;"></div>
+                                </div>
+                                <div style="font-size:0.75rem; text-align:center;" id="battle-enemy-hp-val">40/40</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="battle-log" id="battle-log">
+                        <div class="log-entry">התחל קרב כדי להרוויח מטבעות זהב!</div>
+                    </div>
+
+                    <div class="battle-controls">
+                        <button class="btn" id="btn-attack" onclick="playerAttack()" disabled>💥 התקפת מחץ</button>
+                        <button class="btn btn-secondary" id="btn-special" onclick="playerSpecial()" disabled>✨ מכת סקוויש מיוחדת</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL -->
+        <section class="panel">
+            <div class="panel-header">
+                <span>חנות תיבות NeeDoh</span>
+            </div>
+
+            <div class="shop-grid">
+                <div class="shop-card">
+                    <div class="shop-info">
+                        <div class="shop-icon">📦</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.9rem;">תיבה בסיסית</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Common / Rare</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-accent" onclick="buyChest('basic', 100)">🪙 100</button>
+                </div>
+
+                <div class="shop-card">
+                    <div class="shop-info">
+                        <div class="shop-icon">🎁</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.9rem;">תיבת NeeDoh נדירה</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Rare / Epic</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-accent" onclick="buyChest('rare', 350)">🪙 350</button>
+                </div>
+
+                <div class="shop-card">
+                    <div class="shop-info">
+                        <div class="shop-icon">💎</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.9rem;">תיבת מיתוס מוזהבת</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Epic / Mythic</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-accent" onclick="buyChest('mythic', 1000)">🪙 1000</button>
+                </div>
+            </div>
+
+            <div class="panel-header" style="margin-top: 10px;">
+                <span>אוסף הסקווישים שלי</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);" id="inventory-count">1/9</span>
+            </div>
+
+            <div class="inventory-grid" id="inventory-container"></div>
+        </section>
+    </main>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="unboxing-modal">
+        <div class="chest-modal">
+            <h2 style="margin:0;">פתיחת תיבה!</h2>
+            <div class="unboxing-icon" id="modal-chest-icon">🎁</div>
+            <div id="modal-result-container" style="display:none; flex-direction:column; align-items:center; gap:10px;">
+                <div style="font-size: 4rem;" id="modal-squishy-icon">🐱</div>
+                <h3 id="modal-squishy-name" style="margin:0;">NeeDoh Cat Ball</h3>
+                <div id="modal-squishy-rarity" class="rarity-epic" style="font-weight:bold;">EPIC</div>
+            </div>
+            <button class="btn" id="modal-close-btn" style="display:none; width: 100%;" onclick="closeModal()">אסוף לאוסף!</button>
+        </div>
+    </div>
+
+    <script>
+        const SQUISHY_DATABASE = [
+            { id: 'doh_classic', name: 'NeeDoh קלאסי', icon: '🔵', rarity: 'common', baseAtk: 10, baseHp: 50 },
+            { id: 'donut_squish', name: 'דונאט מתוק', icon: '🍩', rarity: 'common', baseAtk: 12, baseHp: 60 },
+            { id: 'gummy_bear', name: 'גאמי דובון', icon: '🧸', rarity: 'common', baseAtk: 14, baseHp: 55 },
+            { id: 'gumdrop_ball', name: 'NeeDoh Gumdrop', icon: '🍬', rarity: 'rare', baseAtk: 22, baseHp: 90 },
+            { id: 'ice_cube', name: 'Nice Cube קראנצ\'י', icon: '🧊', rarity: 'rare', baseAtk: 26, baseHp: 110 },
+            { id: 'cat_ball', name: 'NeeDoh Cat Ball', icon: '🐱', rarity: 'epic', baseAtk: 40, baseHp: 160 },
+            { id: 'shroom_squish', name: 'סקוויש פטרייה זוהר', icon: '🍄', rarity: 'epic', baseAtk: 48, baseHp: 190 },
+            { id: 'dragon_egg', name: 'דרקון NeeDoh מיתולוגי', icon: '🥚', rarity: 'legendary', baseAtk: 75, baseHp: 300 },
+            { id: 'cosmic_orb', name: 'כדור קוסמי זוהר', icon: '🔮', rarity: 'mythic', baseAtk: 120, baseHp: 500 }
+        ];
+
+        const REGIONS = [
+            {
+                id: 'bakery',
+                name: 'מחוז המאפייה',
+                desc: 'סקווישים רכים של מאפים ולחמים',
+                icon: '🧁',
+                enemies: [
+                    { name: 'עוגיית שוקולד סקוויש', icon: '🍪', hp: 45, atk: 8, rewardGold: 30 },
+                    { name: 'לחמניית ענן', icon: '🍞', hp: 70, atk: 12, rewardGold: 50 }
+                ]
+            },
+            {
+                id: 'needoh_valley',
+                name: 'עמק ה-NeeDoh',
+                desc: 'הבית של כדורי ה-Gumdrop וה-Nice Cube',
+                icon: '🌈',
+                enemies: [
+                    { name: 'כדור NeeDoh עצבני', icon: '🎾', hp: 120, atk: 20, rewardGold: 90 },
+                    { name: 'קוביות ג\'ל חמוצה', icon: '🧊', hp: 180, atk: 28, rewardGold: 140 }
+                ]
+            },
+            {
+                id: 'frosty_ice',
+                name: 'אי הקרח והקריסטל',
+                desc: 'אזור קראנצ\'י וקפאון מאתגר',
+                icon: '❄️',
+                enemies: [
+                    { name: 'סקוויש קרחון ענקי', icon: '🏔️', hp: 320, atk: 45, rewardGold: 250 },
+                    { name: 'מלך ה-Nice Cube', icon: '👑', hp: 500, atk: 65, rewardGold: 450 }
+                ]
+            }
+        ];
+
+        let player = {
+            gold: 150,
+            gems: 5,
+            inventory: ['donut_squish'],
+            activeSquishyId: 'donut_squish',
+            squishyProgress: {
+                'donut_squish': { level: 1, xp: 0, scale: 1.0 }
+            },
+            lastActiveTime: Date.now()
+        };
+
+        let currentBattle = {
+            active: false,
+            enemy: null,
+            enemyHp: 0,
+            enemyMaxHp: 0,
+            playerHp: 0,
+            playerMaxHp: 0
+        };
+
+        function init() {
+            loadGame();
+            calculateOfflineProgress();
+            renderAll();
+            setInterval(saveGame, 10000);
+        }
+
+        function saveGame() {
+            player.lastActiveTime = Date.now();
+            localStorage.setItem('neeDohRPG_save', JSON.stringify(player));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('neeDohRPG_save');
+            if (saved) {
+                player = JSON.parse(saved);
+            }
+        }
+
+        function calculateOfflineProgress() {
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - player.lastActiveTime) / 1000);
+            
+            if (elapsedSeconds > 10) {
+                const passiveXP = Math.floor(elapsedSeconds / 4);
+                const activeData = player.squishyProgress[player.activeSquishyId];
+                if (activeData && passiveXP > 0) {
+                    addXP(player.activeSquishyId, passiveXP);
+                }
+            }
+        }
+
+        function squishActive() {
+            addXP(player.activeSquishyId, 5);
+            const avatar = document.getElementById('squishy-visual');
+            avatar.style.transform = 'scale(0.85, 0.7)';
+            setTimeout(() => { avatar.style.transform = ''; }, 150);
+        }
+
+        function addXP(squishyId, amount) {
+            if (!player.squishyProgress[squishyId]) {
+                player.squishyProgress[squishyId] = { level: 1, xp: 0, scale: 1.0 };
+            }
+
+            const data = player.squishyProgress[squishyId];
+            data.xp += amount;
+
+            const xpNeeded = getXpNeeded(data.level);
+            if (data.xp >= xpNeeded) {
+                data.xp -= xpNeeded;
+                data.level++;
+                data.scale = Math.min(2.5, data.scale + 0.15);
+            }
+
+            renderActiveSquishy();
+            saveGame();
+        }
+
+        function getXpNeeded(level) {
+            return Math.floor(40 * Math.pow(1.3, level - 1));
+        }
+
+        function getSquishyStats(id) {
+            const base = SQUISHY_DATABASE.find(s => s.id === id);
+            const prog = player.squishyProgress[id] || { level: 1, scale: 1.0 };
+            
+            const atk = Math.floor(base.baseAtk * (1 + (prog.level - 1) * 0.25) * prog.scale);
+            const hp = Math.floor(base.baseHp * (1 + (prog.level - 1) * 0.3) * prog.scale);
+
+            return { atk, hp, level: prog.level, scale: prog.scale, base };
+        }
+
+        function buyChest(type, cost) {
+            if (player.gold < cost) {
+                alert('אין לך מספיק מטבעות זהב! צא לקרבות כדי להרוויח עוד.');
+                return;
+            }
+
+            player.gold -= cost;
+            renderResources();
+
+            let pool = [];
+            if (type === 'basic') {
+                pool = SQUISHY_DATABASE.filter(s => s.rarity === 'common' || s.rarity === 'rare');
+            } else if (type === 'rare') {
+                pool = SQUISHY_DATABASE.filter(s => s.rarity === 'rare' || s.rarity === 'epic');
+            } else if (type === 'mythic') {
+                pool = SQUISHY_DATABASE.filter(s => s.rarity === 'epic' || s.rarity === 'legendary' || s.rarity === 'mythic');
+            }
+
+            const rewarded = pool[Math.floor(Math.random() * pool.length)];
+
+            if (!player.inventory.includes(rewarded.id)) {
+                player.inventory.push(rewarded.id);
+            }
+            if (!player.squishyProgress[rewarded.id]) {
+                player.squishyProgress[rewarded.id] = { level: 1, xp: 0, scale: 1.0 };
+            }
+
+            openChestModal(rewarded);
+            renderInventory();
+            saveGame();
+        }
+
+        function openChestModal(squishy) {
+            const modal = document.getElementById('unboxing-modal');
+            const chestIcon = document.getElementById('modal-chest-icon');
+            const resultBox = document.getElementById('modal-result-container');
+            const closeBtn = document.getElementById('modal-close-btn');
+
+            chestIcon.style.display = 'block';
+            resultBox.style.display = 'none';
+            closeBtn.style.display = 'none';
+            modal.classList.add('active');
+
+            setTimeout(() => {
+                chestIcon.style.display = 'none';
+                resultBox.style.display = 'flex';
+                closeBtn.style.display = 'block';
+
+                document.getElementById('modal-squishy-icon').innerText = squishy.icon;
+                document.getElementById('modal-squishy-name').innerText = squishy.name;
+                const rarityEl = document.getElementById('modal-squishy-rarity');
+                rarityEl.innerText = squishy.rarity.toUpperCase();
+                rarityEl.className = 'rarity-' + squishy.rarity;
+            }, 1200);
+        }
+
+        function closeModal() {
+            document.getElementById('unboxing-modal').classList.remove('active');
+        }
+
+        function switchView(view) {
+            document.getElementById('tab-map').classList.toggle('active', view === 'map');
+            document.getElementById('tab-battle').classList.toggle('active', view === 'battle');
+            document.getElementById('view-map').classList.toggle('active', view === 'map');
+            document.getElementById('view-battle').classList.toggle('active', view === 'battle');
+        }
+
+        function startBattle(regionId) {
+            const region = REGIONS.find(r => r.id === regionId);
+            const enemyBase = region.enemies[Math.floor(Math.random() * region.enemies.length)];
+            const stats = getSquishyStats(player.activeSquishyId);
+
+            currentBattle = {
+                active: true,
+                enemy: enemyBase,
+                enemyHp: enemyBase.hp,
+                enemyMaxHp: enemyBase.hp,
+                playerHp: stats.hp,
+                playerMaxHp: stats.hp
+            };
+
+            switchView('battle');
+            renderBattleView();
+            logBattle(`נכנסת לקרב ב${region.name} מול ${enemyBase.name}!`, 'enemy');
+        }
+
+        function playerAttack() {
+            if (!currentBattle.active) return;
+            const stats = getSquishyStats(player.activeSquishyId);
+            const dmg = Math.floor(stats.atk * (0.9 + Math.random() * 0.2));
+            
+            currentBattle.enemyHp = Math.max(0, currentBattle.enemyHp - dmg);
+            logBattle(`התקפת את ${currentBattle.enemy.name} וגרמת ל-${dmg} נזק!`, 'player');
+
+            if (currentBattle.enemyHp <= 0) {
+                winBattle();
+            } else {
+                enemyAttack();
+            }
+            renderBattleView();
+        }
+
+        function playerSpecial() {
+            if (!currentBattle.active) return;
+            const stats = getSquishyStats(player.activeSquishyId);
+            const dmg = Math.floor(stats.atk * 1.6);
+            
+            currentBattle.enemyHp = Math.max(0, currentBattle.enemyHp - dmg);
+            logBattle(`מכת סקוויש מיוחדת! גרמת ל-${dmg} נזק!`, 'player');
+
+            if (currentBattle.enemyHp <= 0) {
+                winBattle();
+            } else {
+                enemyAttack();
+            }
+            renderBattleView();
+        }
+
+        function enemyAttack() {
+            const enemy = currentBattle.enemy;
+            const dmg = Math.floor(enemy.atk * (0.85 + Math.random() * 0.3));
+
+            currentBattle.playerHp = Math.max(0, currentBattle.playerHp - dmg);
+            logBattle(`${enemy.name} התקיף אותך וגרם ל-${dmg} נזק!`, 'enemy');
+
+            if (currentBattle.playerHp <= 0) {
+                loseBattle();
+            }
+        }
+
+        function winBattle() {
+            currentBattle.active = false;
+            const reward = currentBattle.enemy.rewardGold;
+            player.gold += reward;
+            addXP(player.activeSquishyId, 15);
+            logBattle(`🏆 ניצחת בקרב! הרווחת ${reward} מטבעות זהב ו-15 XP!`, 'win');
+            renderResources();
+            saveGame();
+        }
+
+        function loseBattle() {
+            currentBattle.active = false;
+            logBattle(`💔 הסקווישי שלך התעייף והפסיד בקרב...`, 'enemy');
+        }
+
+        function logBattle(msg, type) {
+            const log = document.getElementById('battle-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerText = msg;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function renderAll() {
+            renderResources();
+            renderActiveSquishy();
+            renderMap();
+            renderInventory();
+        }
+
+        function renderResources() {
+            document.getElementById('gold-display').innerText = player.gold;
+            document.getElementById('gems-display').innerText = player.gems;
+        }
+
+        function renderActiveSquishy() {
+            const stats = getSquishyStats(player.activeSquishyId);
+            const prog = player.squishyProgress[player.activeSquishyId] || { level: 1, xp: 0, scale: 1.0 };
+            
+            document.getElementById('squishy-visual').innerText = stats.base.icon;
+            document.getElementById('squishy-visual').style.transform = `scale(${stats.scale})`;
+            document.getElementById('squishy-name-display').innerText = stats.base.name;
+            
+            const badge = document.getElementById('active-rarity-badge');
+            badge.innerText = stats.base.rarity.toUpperCase();
+            badge.className = 'rarity-' + stats.base.rarity;
+
+            document.getElementById('squishy-stage-label').innerText = `רמה ${stats.level}`;
+            
+            const xpNeeded = getXpNeeded(stats.level);
+            document.getElementById('xp-text').innerText = `${prog.xp} / ${xpNeeded}`;
+            document.getElementById('xp-bar-fill').style.width = `${Math.min(100, (prog.xp / xpNeeded) * 100)}%`;
+
+            document.getElementById('atk-text').innerText = stats.atk;
+            document.getElementById('hp-text').innerText = stats.hp;
+        }
+
+        function renderMap() {
+            const container = document.getElementById('map-grid-container');
+            container.innerHTML = '';
+
+            REGIONS.forEach(reg => {
+                const card = document.createElement('div');
+                card.className = 'region-card';
+                card.innerHTML = `
+                    <div class="region-banner">${reg.icon}</div>
+                    <div class="region-title">${reg.name}</div>
+                    <div class="region-desc">${reg.desc}</div>
+                    <button class="btn btn-secondary" onclick="startBattle('${reg.id}')">צא לקרב!</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('inventory-container');
+            container.innerHTML = '';
+
+            document.getElementById('inventory-count').innerText = `${player.inventory.length}/${SQUISHY_DATABASE.length}`;
+
+            player.inventory.forEach(id => {
+                const squishy = SQUISHY_DATABASE.find(s => s.id === id);
+                const item = document.createElement('div');
+                item.className = `inv-item ${id === player.activeSquishyId ? 'equipped' : ''}`;
+                
+                const dot = document.createElement('div');
+                dot.className = `badge-rarity bg-rarity-${squishy.rarity}`;
+                item.appendChild(dot);
+
+                const icon = document.createElement('span');
+                icon.innerText = squishy.icon;
+                item.appendChild(icon);
+
+                item.onclick = () => {
+                    player.activeSquishyId = id;
+                    renderActiveSquishy();
+                    renderInventory();
+                    saveGame();
+                };
+
+                container.appendChild(item);
+            });
+        }
+
+        function renderBattleView() {
+            const stats = getSquishyStats(player.activeSquishyId);
+
+            document.getElementById('battle-player-icon').innerText = stats.base.icon;
+            document.getElementById('battle-player-name').innerText = stats.base.name;
+            document.getElementById('battle-player-hp-val').innerText = `${currentBattle.playerHp}/${currentBattle.playerMaxHp}`;
+            document.getElementById('battle-player-hp-bar').style.width = `${(currentBattle.playerHp / currentBattle.playerMaxHp) * 100}%`;
+
+            if (currentBattle.enemy) {
+                document.getElementById('battle-enemy-icon').innerText = currentBattle.enemy.icon;
+                document.getElementById('battle-enemy-name').innerText = currentBattle.enemy.name;
+                document.getElementById('battle-enemy-hp-val').innerText = `${currentBattle.enemyHp}/${currentBattle.enemyMaxHp}`;
+                document.getElementById('battle-enemy-hp-bar').style.width = `${(currentBattle.enemyHp / currentBattle.enemyMaxHp) * 100}%`;
+            }
+
+            document.getElementById('btn-attack').disabled = !currentBattle.active;
+            document.getElementById('btn-special').disabled = !currentBattle.active;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
